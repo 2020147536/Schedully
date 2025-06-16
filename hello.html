@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>FastAPI Form 데이터 전송 (axios)</title>
+    <!-- axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+    <script>
+    
+        $(document).ready(function() {
+
+            const urlBackend = 'https://738a-34-143-189-44.ngrok-free.app';
+
+            $('#myForm').on('submit', function(e) {
+            e.preventDefault();
+
+            // FormData 객체 생성
+            var formData = new FormData(this);
+
+            // jQuery의 ajax로 multipart/form-data 전송
+            $.ajax({
+                url: urlBackend+'/data', // 서버 주소에 맞게 수정
+                type: 'POST',
+                data: formData,
+                processData: false, // 필수: FormData 사용 시 false
+                contentType: false, // 필수: FormData 사용 시 false
+                success: function(res) {
+                    // 응답을 #response에 예쁘게 출력
+                    $('#response').text(JSON.stringify(res, null, 2));
+                },
+                error: function(xhr, status, error) {
+                    $('#response').text('에러: ' + xhr.responseText);
+                }
+            });
+            });
+            
+            $('#btnAxios').on('click', function (e) {
+                    e.preventDefault();
+            
+                    // FormData 객체 생성
+                    var formData = new FormData($('#myForm')[0]);
+            
+                    // Axios를 이용한 multipart/form-data 전송
+                    axios.post(urlBackend + '/data', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    })
+                    .then(function(response) {
+                        // 응답을 #response에 예쁘게 출력
+                        $('#response').text(JSON.stringify(response.data, null, 2));
+                    })
+                    .catch(function(error) {
+                        if (error.response) {
+                            $('#response').text('에러: ' + error.response.data);
+                        } else {
+                            $('#response').text('에러: ' + error.message);
+                        }
+                    });
+                });
+        });
+            
+    </script>
+
+    <h2>FastAPI Form 데이터 전송 (jQuery)</h2>
+    <form id="myForm">
+        <label for="data">data:</label>
+        <input type="text" id="data" name="data" value="hello world"><br><br>
+        <label for="request">request (JSON 문자열):</label>
+        <input type="text" id="request" name="request" value='{"data": "json value", "other": 123}'><br><br>
+        <button type="submit" id="btnAjax">전송(ajax)</button>
+        <button type="button" id="btnAxios">전송(axios)</button>
+    </form>
+
+    <h3>서버 응답:</h3>
+    <pre id="response"></pre>
+</body>
+</html>
